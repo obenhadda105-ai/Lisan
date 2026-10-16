@@ -527,26 +527,52 @@ let t=30;const iv=setInterval(()=>{const b=$('rs');if(!b){clearInterval(iv);retu
 function chkCode(){const e=$('aerr');if(AU.tries>=5){e.textContent='تجاوزت عدد المحاولات. اطلب رمزًا جديدًا لاحقًا.';return}if($('cd').value.trim()==='123456'){$('abox').innerHTML=`<div class="card" style="text-align:center"><div style="font-size:44px">✅</div><b>تم التحقق (تصميم فقط)</b><p class="mut">في التطبيق الحقيقي يدخلك هذا إلى لسان.</p><button class="go" style="width:100%" onclick="go('home')">ادخل التطبيق</button></div>`}else{AU.tries++;e.textContent='الرمز غير صحيح. المحاولات المتبقية: '+(5-AU.tries)}}
 let qrd=0;function showQR(){$('qrm').classList.add('on');$('qurl').textContent=location.href;if(qrd)return;try{new QRCode($('qrbox'),{text:location.href,width:220,height:220,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});qrd=1}catch(e){$('qrbox').textContent='تعذّر إنشاء الرمز'}}
 drawLearn();
-</script><div id="ai-box" style="position:fixed;bottom:80px;right:20px;background:#0c2b5c;padding:15px;border-radius:12px;border:1px solid #1b4a95;z-index:99999;width:280px;color:#fff;">
-  <div style="font-weight:bold;margin-bottom:8px;">مساعد لسان الذكي</div>
-  <div id="ai-response" style="font-size:13px;margin-bottom:8px;max-height:100px;overflow-y:auto;background:#061a3a;padding:6px;border-radius:6px;">اكتب سؤالك بالأسفل...</div>
-  <input type="text" id="ai-input" placeholder="اكتب هنا..." style="width:100%;padding:6px;border-radius:4px;border:none;margin-bottom:6px;box-sizing:border-box;">
-  <button onclick="sendAI()" style="width:100%;padding:6px;background:#1a7bff;color:#fff;border:none;border-radius:4px;cursor:pointer;">إرسال</button>
+  <!-- زر المساعد الذكي بجانب قائمة الملاحة السفلى -->
+<div id="ai-toggle-btn" onclick="toggleAIChat()" style="position:fixed;bottom:20px;left:20px;background:#1a7bff;color:#fff;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.3);cursor:pointer;z-index:99999;font-size:22px;">
+  🤖
+</div>
+
+<!-- نافذة المحادثة المخبأة وتفتح عند الضغط على الأيقونة -->
+<div id="ai-box" style="display:none;position:fixed;bottom:80px;left:15px;right:15px;max-width:350px;margin:auto;background:#0c2b5c;padding:15px;border-radius:16px;border:1px solid #1b4a95;z-index:99999;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div style="font-weight:bold;font-size:15px;display:flex;align-items:center;gap:6px;">
+      <span>🤖</span> مساعد لسان الذكي
+    </div>
+    <div onclick="toggleAIChat()" style="cursor:pointer;font-size:18px;color:#aaa;padding:0 4px;">✕</div>
+  </div>
+  <div id="ai-response" style="font-size:13px;margin-bottom:10px;max-height:150px;overflow-y:auto;background:#061a3a;padding:8px 10px;border-radius:8px;line-height:1.5;">
+    مرحبًا بك! كيف يمكنني مساعدتك في تعلم اللغات اليوم؟
+  </div>
+  <div style="display:flex;gap:6px;">
+    <input type="text" id="ai-input" placeholder="اكتب سؤالك هنا..." style="flex:1;padding:8px 10px;border-radius:8px;border:none;background:#061a3a;color:#fff;font-size:13px;outline:none;">
+    <button onclick="sendAI()" style="padding:8px 14px;background:#1a7bff;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:bold;font-size:13px;">إرسال</button>
+  </div>
 </div>
 
 <script>
+function toggleAIChat() {
+  const box = document.getElementById("ai-box");
+  if (box.style.display === "none" || box.style.display === "") {
+    box.style.display = "block";
+  } else {
+    box.style.display = "none";
+  }
+}
+
 async function sendAI() {
   const input = document.getElementById("ai-input");
   const box = document.getElementById("ai-response");
-  if(!input.value.trim()) return;
+  const text = input.value.trim();
+  if(!text) return;
   
   box.innerText = "جاري التفكير...";
+  input.value = "";
   
   try {
     const res = await fetch("https://lisan-ai.obenhadda105.workers.dev", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: [{ role: "user", content: input.value }] })
+      body: JSON.stringify({ messages: [{ role: "user", content: text }] })
     });
     const data = await res.json();
     if(data.text) {
@@ -560,7 +586,5 @@ async function sendAI() {
 }
 </script>
   
-<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
-</body>
-</html>
+  
 
