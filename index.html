@@ -531,3 +531,30 @@ drawLearn();
 <script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
 </body>
 </html>
+<script>
+async function sendMessageToLisanAI(userText) {
+  try {
+    const response = await fetch("https://lisan-ai.obenhadda105.workers.dev", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        messages: [
+          { role: "user", content: userText }
+        ]
+      })
+    });
+
+    const data = await response.json();
+    if (data.text) {
+      alert("رد الذكاء الاصطناعي: " + data.text);
+    } else {
+      alert("حدث خطأ: " + JSON.stringify(data));
+    }
+  } catch (err) {
+    alert("فشل الاتصال: " + err.message);
+  }
+}
+</script>
+
