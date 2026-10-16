@@ -527,34 +527,40 @@ let t=30;const iv=setInterval(()=>{const b=$('rs');if(!b){clearInterval(iv);retu
 function chkCode(){const e=$('aerr');if(AU.tries>=5){e.textContent='تجاوزت عدد المحاولات. اطلب رمزًا جديدًا لاحقًا.';return}if($('cd').value.trim()==='123456'){$('abox').innerHTML=`<div class="card" style="text-align:center"><div style="font-size:44px">✅</div><b>تم التحقق (تصميم فقط)</b><p class="mut">في التطبيق الحقيقي يدخلك هذا إلى لسان.</p><button class="go" style="width:100%" onclick="go('home')">ادخل التطبيق</button></div>`}else{AU.tries++;e.textContent='الرمز غير صحيح. المحاولات المتبقية: '+(5-AU.tries)}}
 let qrd=0;function showQR(){$('qrm').classList.add('on');$('qurl').textContent=location.href;if(qrd)return;try{new QRCode($('qrbox'),{text:location.href,width:220,height:220,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});qrd=1}catch(e){$('qrbox').textContent='تعذّر إنشاء الرمز'}}
 drawLearn();
-</script>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
-</body>
-</html>
-<script>
-async function sendMessageToLisanAI(userText) {
-  try {
-    const response = await fetch("https://lisan-ai.obenhadda105.workers.dev", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        messages: [
-          { role: "user", content: userText }
-        ]
-      })
-    });
+</script><div id="ai-box" style="position:fixed;bottom:80px;right:20px;background:#0c2b5c;padding:15px;border-radius:12px;border:1px solid #1b4a95;z-index:99999;width:280px;color:#fff;">
+  <div style="font-weight:bold;margin-bottom:8px;">مساعد لسان الذكي</div>
+  <div id="ai-response" style="font-size:13px;margin-bottom:8px;max-height:100px;overflow-y:auto;background:#061a3a;padding:6px;border-radius:6px;">اكتب سؤالك بالأسفل...</div>
+  <input type="text" id="ai-input" placeholder="اكتب هنا..." style="width:100%;padding:6px;border-radius:4px;border:none;margin-bottom:6px;box-sizing:border-box;">
+  <button onclick="sendAI()" style="width:100%;padding:6px;background:#1a7bff;color:#fff;border:none;border-radius:4px;cursor:pointer;">إرسال</button>
+</div>
 
-    const data = await response.json();
-    if (data.text) {
-      alert("رد الذكاء الاصطناعي: " + data.text);
+<script>
+async function sendAI() {
+  const input = document.getElementById("ai-input");
+  const box = document.getElementById("ai-response");
+  if(!input.value.trim()) return;
+  
+  box.innerText = "جاري التفكير...";
+  
+  try {
+    const res = await fetch("https://lisan-ai.obenhadda105.workers.dev", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: [{ role: "user", content: input.value }] })
+    });
+    const data = await res.json();
+    if(data.text) {
+      box.innerText = data.text;
     } else {
-      alert("حدث خطأ: " + JSON.stringify(data));
+      box.innerText = "خطأ: " + (data.error || "تعذر الرد");
     }
-  } catch (err) {
-    alert("فشل الاتصال: " + err.message);
+  } catch(e) {
+    box.innerText = "فشل الاتصال بالخادم";
   }
 }
 </script>
+  
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){})})}</script>
+</body>
+</html>
 
